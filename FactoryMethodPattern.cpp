@@ -1,87 +1,84 @@
-/*The Factory Method pattern*/
-/*It’s very useful when you need to provide a high level of flexibility for your code.*/
-/*Factory methods can be recognized by creation methods, which create objects from concrete classes,
-but return them as objects of abstract type or interface.*/
-
 #include<iostream>
 #include<memory>
 #include<string>
 
 using namespace std;
 
-/**
- * The Investment interface declares the operations that
- *all concrete investments must implement.
- */
-
 class Investment {
 public:
-    //write constructor here to initialise data
-    virtual ~Investment() { delete data; }
+    // Constructor
+    Investment(int x) { data = &x; }
+
+    virtual ~Investment() {}
     virtual string operation() const = 0;
 protected:
     int* data;
 };
 
-/**
- * Concrete investments provide various implementations of the Investment interface.
- */
-
 class Stock : public Investment {
 public:
-    //write constructor here to initialise data
+    // Constructor
+    Stock() : Investment(0) {}
+    Stock(int x) : Investment(x) {}
+
     string operation() const override {
         return "Result of the Stock Investment";
     }
 };
 
 class Bond : public Investment {
-
 public:
-    //write constructor here to initialise data
+    // Constructor
+    Bond() : Investment(0) {}
+    Bond(int x) : Investment(x) {}
+
     string operation() const override {
         return "Result of the Bond Investment";
     }
 };
 
 class RealEstate : public Investment {
-
 public:
-    //write constructor here to initialise data
+    // Constructor
+    RealEstate() : Investment(0) {}
+    RealEstate(int x) : Investment(x) {}
+
     string operation() const override {
         return "Result of the RealEstate Investment";
     }
 };
 
-/**
- * The Creator class declares the factory method that is supposed to return an
- * object of an Investment class.
- */
+// Deleter
+auto deleteInvestment = [](Investment* x) {
+    delete x; 
+};
 
- /** Write a custom deleter called deleteInvestment here*/
-
- /*....*/
-
- /**
-*create a templated Creator class here
-*the factory method creator must return a unique_ptr
-*the unique_ptr should have custom deleter
-*/
-
+// Factory Method pattern class
+template<typename T>
 class Creator {
 public:
-    ... creator() const
-    {
-        //body of the factory method
-        return  ...........;
+    auto creator(int x = 0) const {
+        return unique_ptr<Investment, decltype(deleteInvestment)>(new T(x), deleteInvestment);
     }
 };
 
 
-int main()
-{
-    auto investment = Creator.....creator();
-    cout << investment->operation() << endl;
+int main() {
+    auto investmentStock = Creator<Stock>().creator();
+    cout << investmentStock->operation() << endl;
 
-    return 0;
+    auto investmentStock1 = Creator<Stock>().creator(1);
+    cout << investmentStock1->operation() << endl;
+
+    auto investmentBond = Creator<Bond>().creator();
+    cout << investmentBond->operation() << endl;
+
+    auto investmentBond1 = Creator<Bond>().creator(2);
+    cout << investmentBond1->operation() << endl;
+
+    auto investmentRealEstate = Creator<RealEstate>().creator();
+    cout << investmentRealEstate->operation() << endl;
+
+    auto investmentRealEstate1 = Creator<RealEstate>().creator(3);
+    cout << investmentRealEstate1->operation() << endl;
 }
